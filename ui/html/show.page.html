@@ -1,0 +1,23 @@
+{{template "base" .}}
+
+{{define "title"}}Snippet #{{.Snippet.ID}}{{end}}
+
+{{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
+
+{{define "main"}}
+    {{with .Snippet}}
+    <div class="snippet">
+        <div class="metadata">
+            <strong>{{.Title}}</strong>
+            <span>#{{.ID}}</span>
+        </div>
+        <pre><code><img src="{{.Image}}" alt="car image">{{.Content}}</code></pre>
+        <div class="metadata">
+            <time>Created: {{humanDate .Created}}</time>
+            <time>Expires: {{humanDate .Expires}}</time>
+        </div>
+        <a href="/rent/create/{{.ID}}" class="rent-button">Rent</a>
+    </div>
+    {{end}}
+{{end}}
+{{define "scripts"}}{{end}}
