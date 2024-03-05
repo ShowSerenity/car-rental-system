@@ -13,17 +13,26 @@ var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9
 
 type Form struct {
 	url.Values
-	Errors  errors
-	Cars    []*models.Car
-	Snippet *models.Snippet
+	Errors errors
+	Car    *models.Car
+	Cars   []*models.Car
+}
+
+func NewCar(data url.Values) *Form {
+	return &Form{
+		data,
+		errors(map[string][]string{}),
+		nil,
+		nil,
+	}
 }
 
 func NewSnippet(data url.Values, Cars []*models.Car) *Form {
 	return &Form{
 		data,
 		errors(map[string][]string{}),
-		Cars,
 		nil,
+		Cars,
 	}
 }
 
@@ -36,12 +45,12 @@ func NewSignUp(data url.Values) *Form {
 	}
 }
 
-func NewRent(data url.Values, Snippet *models.Snippet) *Form {
+func NewRent(data url.Values, Car *models.Car) *Form {
 	return &Form{
 		data,
 		errors(map[string][]string{}),
+		Car,
 		nil,
-		Snippet,
 	}
 }
 

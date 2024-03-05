@@ -20,11 +20,13 @@ func (app *application) routes() http.Handler {
 	mux.Post("/rent/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createRent))
 	mux.Get("/rent/:id", dynamicMiddleware.ThenFunc(app.showRent))
 
-	mux.Get("/cars/sedan", dynamicMiddleware.ThenFunc(app.showSedan))
-	mux.Get("/cars/pickup", dynamicMiddleware.ThenFunc(app.showPickup))
-	mux.Get("/cars/sportCar", dynamicMiddleware.ThenFunc(app.showSportCar))
+	mux.Get("/cars/economy", dynamicMiddleware.ThenFunc(app.showEconomy))
+	mux.Get("/cars/comfort", dynamicMiddleware.ThenFunc(app.showComfort))
 	mux.Get("/cars/minivan", dynamicMiddleware.ThenFunc(app.showMinivan))
-	mux.Get("/cars/suv", dynamicMiddleware.ThenFunc(app.showSUV))
+
+	mux.Get("/cars/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createCarForm))
+	mux.Post("/cars/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createCar))
+	mux.Get("/cars/:id", dynamicMiddleware.ThenFunc(app.showCar))
 
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
 	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))

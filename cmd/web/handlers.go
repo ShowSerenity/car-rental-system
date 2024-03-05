@@ -15,35 +15,29 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}*/
 
-	s, err := app.snippets.LatestSnippets()
+	c, err := app.cars.LatestCars()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	app.render(w, r, "home.page.html", &templateData{Snippets: s})
+	app.render(w, r, "home.page.html", &templateData{Cars: c})
 
 }
 
-func (app *application) showSedan(w http.ResponseWriter, r *http.Request) {
-	app.showCarsByType(w, r, "sedan")
+func (app *application) showEconomy(w http.ResponseWriter, r *http.Request) {
+	app.showCarsByType(w, r, "economy")
 }
-func (app *application) showPickup(w http.ResponseWriter, r *http.Request) {
-	app.showCarsByType(w, r, "pickup")
-}
-func (app *application) showSportCar(w http.ResponseWriter, r *http.Request) {
-	app.showCarsByType(w, r, "sportcar")
+func (app *application) showComfort(w http.ResponseWriter, r *http.Request) {
+	app.showCarsByType(w, r, "comfort")
 }
 func (app *application) showMinivan(w http.ResponseWriter, r *http.Request) {
 	app.showCarsByType(w, r, "minivan")
 }
-func (app *application) showSUV(w http.ResponseWriter, r *http.Request) {
-	app.showCarsByType(w, r, "suv")
-}
 
 func (app *application) showCarsByType(w http.ResponseWriter, r *http.Request, carsType string) {
 
-	carsList, err := app.snippets.GetByType(carsType)
+	carsList, err := app.cars.GetCarsByType(carsType)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)
@@ -53,7 +47,7 @@ func (app *application) showCarsByType(w http.ResponseWriter, r *http.Request, c
 		return
 	}
 
-	app.render(w, r, "cars.page.html", &templateData{CarsType: carsType, Snippets: carsList})
+	app.render(w, r, "cars.page.html", &templateData{CarsType: carsType, Cars: carsList})
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -143,8 +137,9 @@ func (app *application) showRent(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	iframeSrc := app.generateRandomMap()
 
-	app.render(w, r, "rentShow.page.html", &templateData{Rent: s})
+	app.render(w, r, "rentShow.page.html", &templateData{Rent: s, IframeSrc: iframeSrc})
 }
 
 func (app *application) createRentForm(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +150,7 @@ func (app *application) createRentForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := app.snippets.Get(id)
+	c, err := app.cars.GetCar(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)
@@ -166,7 +161,7 @@ func (app *application) createRentForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.render(w, r, "rentCreate.page.html", &templateData{
-		Form: forms.NewRent(nil, s)})
+		Form: forms.NewRent(nil, c)})
 }
 
 func (app *application) createRent(w http.ResponseWriter, r *http.Request) {
@@ -178,18 +173,31 @@ func (app *application) createRent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := forms.NewRent(r.PostForm, nil)
-	form.Required("expires")
-	form.PermittedValues("expires", "30", "7", "1")
 
 	if !form.Valid() {
 		app.render(w, r, "rentCreate.page.html", &templateData{Form: form})
 		return
 	}
 
-	carStr := form.Get("car")
-	car, err := strconv.Atoi(carStr)
+	hours, err := strconv.Atoi(form.Get("hours"))
+	minutes, err := strconv.Atoi(form.Get("minutes"))
+	time := (hours * 60) + minutes
 
-	id, err := app.rents.InsertRent(app.session.Get(r, "authenticatedUserID").(int), car, form.Get("expires"))
+	// Retrieve the carID from the form data
+	carID, err := strconv.Atoi(form.Get("carID"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	// Retrieve the totalCost from the form data
+	totalCost, err := strconv.ParseFloat(form.Get("totalCost"), 64)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	id, err := app.rents.InsertRent(app.session.Get(r, "authenticatedUserID").(int), carID, time, totalCost)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -198,6 +206,72 @@ func (app *application) createRent(w http.ResponseWriter, r *http.Request) {
 	app.session.Put(r, "flash", "Rent record successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/rent/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) showCar(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	c, err := app.cars.GetCar(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	iframeSrc := app.generateRandomMap()
+	c.Location = iframeSrc
+
+	app.render(w, r, "carShow.page.html", &templateData{Car: c, IframeSrc: iframeSrc})
+}
+
+func (app *application) createCarForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "carCreate.page.html", &templateData{
+		Form: forms.NewCar(nil)})
+}
+
+func (app *application) createCar(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.NewCar(r.PostForm)
+	form.Required("seats", "age", "cost", "model", "carType", "color", "location", "imageUrl", "description")
+	form.MaxLength("model", 100)
+	form.PermittedValues("seats", "2", "5", "8")
+	form.PermittedValues("carType", "economy", "comfort", "minivan")
+
+	if !form.Valid() {
+		app.render(w, r, "carCreate.page.html", &templateData{Form: form})
+		return
+	}
+
+	seatsStr := form.Get("seats")
+	seats, err := strconv.Atoi(seatsStr)
+	ageStr := form.Get("age")
+	age, err := strconv.Atoi(ageStr)
+	costStr := form.Get("cost")
+	cost, err := strconv.Atoi(costStr)
+
+	id, err := app.cars.InsertCar(seats, age, cost, form.Get("model"),
+		form.Get("carType"), form.Get("color"),
+		form.Get("location"), form.Get("imageUrl"), form.Get("description"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.session.Put(r, "flash", "Rent record successfully created!")
+
+	http.Redirect(w, r, fmt.Sprintf("/cars/%d", id), http.StatusSeeOther)
 }
 
 func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {

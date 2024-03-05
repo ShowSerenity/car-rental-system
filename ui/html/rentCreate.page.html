@@ -1,40 +1,55 @@
 {{template "base" .}}
 
-{{define "title"}}Rent{{end}}
+{{define "title"}}Renting a car{{end}}
 
 {{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
 
 {{define "main"}}
-<form action='/rent/create' method='POST'>
+<form action='/rent/create' method='POST' id='rentForm'>
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     {{with .Form}}
-    <h2>Rent Form</h2>
-    <div class="snippet">
-        <label>Car Info:</label>
-        <pre><code><img src="{{.Snippet.Image}}" alt="car image">{{.Snippet.Content}}</code></pre>
+    <h2>Rent {{.Car.Model}}</h2>
+    <input type='hidden' name='carID' id='carIDInput' value='{{.Car.ID}}'>
+    <span style="display: none;" id="costPerMinute">{{.Car.Cost}}</span>
+
+    <div>
+        <label>Rent Duration:</label>
+        <input type='number' name='hours' id="hours" placeholder='Hours' value='{{.Get "hours"}}' required>
+        <input type='number' name='minutes' id="minutes" placeholder='Minutes' value='{{.Get "minutes"}}' required>
     </div>
 
     <div>
-        {{with .Errors.Get "car"}}
+        <label>Total Cost: ₸</label>
+        {{with .Errors.Get "totalCost"}}
         <label class='error'>{{.}}</label>
         {{end}}
-        <input style="display: none;"type='text' name='car' value='{{.Snippet.CarsID}}'>
+        <span id='totalCost'></span>
+        <input type='hidden' name='totalCost' id='totalCostInput'>
     </div>
 
-    <div>
-        <label>Delete in:</label>
-        {{with .Errors.Get "expires"}}
-        <label class='error'>{{.}}</label>
-        {{end}}
-        {{$exp := or (.Get "expires") "365"}}
-        <input type='radio' name='expires' value='30' {{if (eq $exp "30")}}checked{{end}}> One Month
-        <input type='radio' name='expires' value='7' {{if (eq $exp "7")}}checked{{end}}> One Week
-        <input type='radio' name='expires' value='1' {{if (eq $exp "1")}}checked{{end}}> One Day
-    </div>
     <div>
         <input type='submit' value='Arrange Rent'>
     </div>
     {{end}}
 </form>
 {{end}}
-{{define "scripts"}}{{end}}
+{{define "scripts"}}
+<script>
+    document.getElementById('rentForm').addEventListener('input', function () {
+        calculateTotalCost();
+    });
+
+    function calculateTotalCost() {
+        var hours = document.getElementById('hours').value || 0;
+        var minutes = document.getElementById('minutes').value || 0;
+        var totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
+
+        // Assuming you have a cost per minute, modify this calculation as needed
+        var costPerMinute = parseFloat(document.getElementById('costPerMinute').textContent); // Replace with your actual cost per minute
+        var totalCost = totalMinutes * costPerMinute;
+
+        document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+        document.getElementById('totalCostInput').value = totalCost.toFixed(2);
+    }
+</script>
+{{end}}

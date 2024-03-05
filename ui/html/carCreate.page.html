@@ -1,0 +1,97 @@
+{{template "base" .}}
+
+{{define "title"}}Adding a car{{end}}
+
+{{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
+
+{{define "main"}}
+<form action='/cars/create' method='POST'>
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    {{with .Form}}
+    <h2>Adding a new car</h2>
+    <div>
+        <label>Model:</label>
+        {{with .Errors.Get "model"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='model' value='{{.Get "model"}}'>
+    </div>
+
+    <div>
+        <label>Car Type:</label>
+        {{with .Errors.Get "carType"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        {{$carType := or (.Get "carType") "economy"}}
+        <input type='radio' name='carType' value='economy' {{if (eq $carType "economy")}}checked{{end}}> Economy
+        <input type='radio' name='carType' value='comfort' {{if (eq $carType "comfort")}}checked{{end}}> Comfort
+        <input type='radio' name='carType' value='minivan' {{if (eq $carType "minivan")}}checked{{end}}> Minivan
+    </div>
+
+    <div>
+        <label for="seats">Number of Seats:</label>
+        {{with .Errors.Get "seats"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <select id="seats" name="seats">
+            <option value="2" {{if eq (.Get "seats") "2"}}selected{{end}}>2 Seats</option>
+            <option value="5" {{if eq (.Get "seats") "5"}}selected{{end}}>5 Seats</option>
+            <option value="8" {{if eq (.Get "seats") "8"}}selected{{end}}>8 Seats</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Color:</label>
+        {{with .Errors.Get "color"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='color' value='{{.Get "color"}}'>
+    </div>
+
+    <div>
+        <label>Description:</label>
+        {{with .Errors.Get "description"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <textarea name='description'>{{.Get "description"}}</textarea>
+    </div>
+
+    <div>
+        <label>Age requirement:</label>
+        {{with .Errors.Get "age"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='age' value='{{.Get "age"}}'>
+    </div>
+
+    <div>
+        <label>Cost per minute:</label>
+        {{with .Errors.Get "cost"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='cost' value='{{.Get "cost"}}'>
+    </div>
+
+    <div>
+        <label>Image:</label>
+        {{with .Errors.Get "imageUrl"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='imageUrl' value='{{.Get "imageUrl"}}'>
+    </div>
+
+    <div>
+        <label>Location:</label>
+        {{with .Errors.Get "location"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <input type='text' name='location' value='{{.Get "location"}}'>
+    </div>
+
+    <div>
+        <input type='submit' value='Add this car'>
+    </div>
+    {{end}}
+</form>
+{{end}}
+{{define "scripts"}}{{end}}

@@ -6,18 +6,18 @@
 
 {{define "main"}}
 <h2 class="capitalize-first">{{.CarsType}}</h2>
-{{if .Snippets}}
+{{if .Cars}}
 <div class="table-container">
     <table>
         <tr>
             <th>Title</th>
-            <th>Created</th>
+            <th>Cost per minute</th>
             <th>ID</th>
         </tr>
-        {{range .Snippets}}
+        {{range .Cars}}
         <tr>
-            <td><a href='/snippet/{{.ID}}'>{{.Title}}</a></td>
-            <td>{{humanDate .Created}}</td>
+            <td><a href='/cars/{{.ID}}'>{{.Model}}</a></td>
+            <td>₸{{.Cost}}</td>
             <td>#{{.ID}}</td>
         </tr>
         {{end}}

@@ -5,18 +5,24 @@
 {{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
 
 {{define "main"}}
-{{with .Rent}}
 <div class="snippet">
     <div class="metadata">
-        <strong>{{.RenterName}} rented from {{.OwnerName}}</strong>
-        <span>#{{.ID}}</span>
+        <strong>Rented by {{.Rent.RenterName}}</strong>
+        <span>RECEIPT ID #{{.Rent.ID}}</span>
     </div>
-    <pre><code>Model: {{.Model}} Car type: {{.CarType}} {{.Seats}} seated Color: {{.Color}}</code></pre>
+    <pre><code>Model: {{.Rent.Seats}} seated {{.Rent.Color}} {{.Rent.Model}}
+        <br>Car type: {{.Rent.CarType}}
+        <br>Will drop of at:<br>
+        <iframe id="locationIframe" width="600"
+        height="450"
+        style="border:0;"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="{{.IframeSrc}}"></iframe></code></pre>
     <div class="metadata">
-        <time>Rented on: {{humanDate .RentStart}}</time>
-        <time>Rent ends: {{humanDate .RentEnd}}</time>
+        <time>Rented on: {{humanDate .Rent.RentStart}}</time>
+        <time>Rent ends: {{humanDate .Rent.RentEnd}}</time>
     </div>
 </div>
 {{end}}
-{{end}}
-{{define "scripts"}}{{end}}
+{{define "scripts"}}<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ8HNo3uR57W6cRFPdwBfhq-HhTiZhsFU&libraries=view" defer></script>{{end}}

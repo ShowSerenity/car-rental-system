@@ -38,12 +38,16 @@ type User struct {
 }
 
 type Car struct {
-	ID       int
-	Model    string
-	CarType  string
-	Seats    int
-	Color    string
-	Location string
+	ID             int
+	Model          string
+	CarType        string
+	Seats          int
+	Color          string
+	Location       string
+	Image          string
+	AgeRequirement int
+	Description    string
+	Cost           int
 }
 
 type Rent struct {
@@ -58,4 +62,5 @@ type Rent struct {
 	Location   string
 	RentStart  time.Time
 	RentEnd    time.Time
+	Bill       float64
 }

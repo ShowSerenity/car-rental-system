@@ -11,10 +11,10 @@ type RentModel struct {
 	DB *sql.DB
 }
 
-func (m *RentModel) InsertRent(renterID, carsID int, expires string) (int, error) {
-	stmt := `INSERT INTO rentbook (renter_id, cars_id, rent_start, rent_end)
-	VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
-	result, err := m.DB.Exec(stmt, renterID, carsID, expires)
+func (m *RentModel) InsertRent(renterID, carsID, expires int, bill float64) (int, error) {
+	stmt := `INSERT INTO rentbook (renter_id, cars_id, bill, rent_start, rent_end)
+	VALUES(?, ?, ?, CURRENT_TIMESTAMP, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE))`
+	result, err := m.DB.Exec(stmt, renterID, carsID, bill, expires)
 	if err != nil {
 		return 0, nil
 	}
@@ -35,10 +35,11 @@ func (m *RentModel) GetRent(id int) (*models.Rent, error) {
     cars.carType,
     cars.seats,
     cars.color,
-    cars.location
+    cars.location,
     rentbook.id,
     rentbook.rent_start,
-    rentbook.rent_end
+    rentbook.rent_end,
+	rentbook.bill
 FROM
     rentbook
 JOIN
@@ -51,7 +52,7 @@ WHERE rentbook.id = ?`
 
 	s := &models.Rent{}
 
-	err := row.Scan(&s.RenterName, &s.Model, &s.CarType, &s.Seats, &s.Location, &s.Color, &s.ID, &s.RentStart, &s.RentEnd)
+	err := row.Scan(&s.RenterName, &s.Model, &s.CarType, &s.Seats, &s.Color, &s.Location, &s.ID, &s.RentStart, &s.RentEnd, &s.Bill)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord
@@ -71,7 +72,8 @@ func (m *RentModel) LatestRents(id int) ([]*models.Rent, error) {
     cars.color,
     cars.location,
     rentbook.rent_start,
-    rentbook.rent_end
+    rentbook.rent_end,
+	rentbook.bill
 FROM
     rentbook
 JOIN
@@ -92,7 +94,7 @@ WHERE rentbook.renter_id = ? ORDER BY rentbook.rent_start DESC LIMIT 10`
 	for rows.Next() {
 		s := &models.Rent{}
 
-		err := rows.Scan(&s.RenterName, &s.Model, &s.CarType, &s.Seats, &s.Color, &s.Location, &s.RentStart, &s.RentEnd)
+		err := rows.Scan(&s.RenterName, &s.Model, &s.CarType, &s.Seats, &s.Color, &s.Location, &s.RentStart, &s.RentEnd, &s.Bill)
 		if err != nil {
 			return nil, err
 		}

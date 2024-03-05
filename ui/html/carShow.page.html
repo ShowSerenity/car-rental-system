@@ -1,0 +1,35 @@
+{{template "base" .}}
+
+{{define "title"}}Car #{{.Car.ID}}{{end}}
+
+{{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
+
+{{define "main"}}
+{{with .Car}}
+<div class="snippet">
+    <div class="metadata">
+        <strong>{{.Seats}} seated {{.Color}} {{.Model}}</strong>
+        <span>#{{.CarType}}</span>
+    </div>
+    <pre><code><img style="width: 100%; height: 100%;"src="{{.Image}}" alt="car image">
+        <br>{{.Description}}
+        <br>Age requirement: {{.AgeRequirement}}
+        <br>Cost: {{.Cost}} tg/min
+        <br>Currently at:
+        <br>
+        <iframe id="locationIframe" width="600"
+                    height="450"
+                    style="border:0;"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="{{.Location}}">
+        </iframe>
+        <br><button><a href="/rent/create/{{.ID}}">Rent</a></button>
+    </code></pre>
+    <div class="metadata">
+
+    </div>
+</div>
+{{end}}
+{{end}}
+{{define "scripts"}}{{end}}

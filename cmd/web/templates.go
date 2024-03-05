@@ -24,6 +24,7 @@ type templateData struct {
 	IsAuthenticated bool
 	IsAdmin         bool
 	CarsType        string
+	IframeSrc       string
 }
 
 func humanDate(t time.Time) string {
