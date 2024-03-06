@@ -17,7 +17,7 @@ body {
     overflow-y: scroll;
 }
 
-header, nav, footer {
+header, nav {
     padding: 2px calc((100% - 800px) / 2) 0;
 }
 
@@ -470,12 +470,30 @@ tr:nth-child(2n) {
     }
 }
 
+/*footer {*/
+/*    border-top: 1px solid #E4E5E7;*/
+/*    padding-top: 17px;*/
+/*    padding-bottom: 15px;*/
+/*    background: #F7F9FA;*/
+/*    height: 60px;*/
+/*    color: #6A6C6F;*/
+/*    text-align: center;*/
+/*}*/
+
 footer {
-    border-top: 1px solid #E4E5E7;
-    padding-top: 17px;
-    padding-bottom: 15px;
-    background: #F7F9FA;
-    height: 60px;
-    color: #6A6C6F;
-    text-align: center;
+    padding-left: calc((100% - 800px) / 2);
+    padding-right: calc((100% - 800px) / 2);
 }
+
+.container.text-center.text-md-start.mt-5 {
+    max-width: 800px;
+    margin: auto;
+}
+
+@media (max-width: 840px) {
+    footer {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
