@@ -56,13 +56,18 @@ Welcome to our Free Float Car Sharing system, a convenient and efficient way to 
 ## Screenshots
 
 ### Car Selection
-![Car Selection](path/to/car-selection-screenshot.png)
+![image](https://github.com/ShowSerenity/car-rental-system/assets/124548089/733115ba-d654-48fd-bcf6-bca2bb49be5d)
 
 ### Real-Time Location Tracking
-![Real-Time Location Tracking](path/to/location-tracking-screenshot.png)
+![image](https://github.com/ShowSerenity/car-rental-system/assets/124548089/4911bf8c-a5df-4597-9f45-f6b765de88b3)
 
 ### Payment Process
-![Payment Process](path/to/payment-screenshot.png)
+![image](https://github.com/ShowSerenity/car-rental-system/assets/124548089/5cafd060-f94c-45f5-95f7-4fcf0bdce254)
 
-## License
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+## Receipt storage
+![image](https://github.com/ShowSerenity/car-rental-system/assets/124548089/50287910-3a0b-49da-b336-97aca2e4e4bf)
+
+## Profile page
+![image](https://github.com/ShowSerenity/car-rental-system/assets/124548089/8cc22e0e-a655-4c4f-a450-91ad3ec55720)
+
+
