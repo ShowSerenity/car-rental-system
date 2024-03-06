@@ -91,7 +91,7 @@ func (app *application) createRentForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	check, err := app.rents.GetRentByCarID(c.ID)
-	if !check {
+	if check {
 		errorMessage := "This vehicle is currently rented by someone else"
 		app.render(w, r, "error.page.html", &templateData{Error: errorMessage})
 	}
