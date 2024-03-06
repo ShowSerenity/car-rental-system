@@ -67,7 +67,7 @@ WHERE rentbook.id = ?`
 func (m *RentModel) GetRentByCarID(id int) (bool, error) {
 	stmt := `SELECT 
     cars.location,
-    rentbook.rent_end,
+    rentbook.rent_end
 FROM
     rentbook
 JOIN

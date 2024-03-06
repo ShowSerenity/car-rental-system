@@ -1,10 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{{define "nav"}}
+<nav aria-label="breadcrumb" class="main-breadcrumb">
+    <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href='/'>Home</a></li>
+            <li class="breadcrumb-item"><a href='/cars/economy'>Economy</a></li>
+            <li class="breadcrumb-item"><a href='/cars/comfort'>Comfort</a></li>
+            <li class="breadcrumb-item"><a href='/cars/minivan'>Minivan</a></li>
+            {{if .IsAuthenticated}}
+                <li class="breadcrumb-item"><a href='/user/profile'>Profile</a></li>
+                <form action='/user/logout' method='POST'>
+                    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+                    <button>Logout</button>
+                </form>
+            {{else}}
+        <li class="breadcrumb-item"><a href='/user/signup'>Signup</a></li>
+        <li class="breadcrumb-item"><a href='/user/login'>Login</a></li>
+            {{end}}
+    </ol>
+</nav>
+{{end}}
