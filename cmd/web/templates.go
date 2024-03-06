@@ -13,8 +13,6 @@ type templateData struct {
 	CurrentYear     int
 	Flash           string
 	Form            *forms.Form
-	Snippet         *models.Snippet
-	Snippets        []*models.Snippet
 	Car             *models.Car
 	Cars            []*models.Car
 	Rent            *models.Rent
@@ -23,6 +21,7 @@ type templateData struct {
 	Users           []*models.User
 	IsAuthenticated bool
 	IsAdmin         bool
+	Error           string
 	CarsType        string
 	IframeSrc       string
 }

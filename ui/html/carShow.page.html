@@ -2,9 +2,30 @@
 
 {{define "title"}}Car #{{.Car.ID}}{{end}}
 
-{{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
+{{define "css"}}<style>
+    /* Add this to your CSS or in the <style> section of your HTML */
+    button {
+        background-color: #4CAF50; /* Green background color */
+        color: white; /* White text color */
+        padding: 10px 20px; /* Padding around the text */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Add a slight border-radius */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button a {
+        color: white; /* Set the text color for the link inside the button */
+        text-decoration: none; /* Remove underline */
+    }
+    </style>
+{{end}}
 
 {{define "main"}}
+<div class="container-offers">
 {{with .Car}}
 <div class="snippet">
     <div class="metadata">
@@ -29,6 +50,7 @@
     <div class="metadata">
 
     </div>
+</div>
 </div>
 {{end}}
 {{end}}

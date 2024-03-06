@@ -2,9 +2,10 @@
 
 {{define "title"}}Rent #{{.Rent.ID}}{{end}}
 
-{{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
+{{define "css"}}{{end}}
 
 {{define "main"}}
+<div class="container-offers">
 <div class="snippet">
     <div class="metadata">
         <strong>Rented by {{.Rent.RenterName}}</strong>
@@ -12,17 +13,19 @@
     </div>
     <pre><code>Model: {{.Rent.Seats}} seated {{.Rent.Color}} {{.Rent.Model}}
         <br>Car type: {{.Rent.CarType}}
+        <br>Total bill: ₸{{.Rent.Bill}}
         <br>Will drop of at:<br>
         <iframe id="locationIframe" width="600"
         height="450"
         style="border:0;"
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
-        src="{{.IframeSrc}}"></iframe></code></pre>
+        src="{{.Rent.Location}}"></iframe></code></pre>
     <div class="metadata">
         <time>Rented on: {{humanDate .Rent.RentStart}}</time>
         <time>Rent ends: {{humanDate .Rent.RentEnd}}</time>
     </div>
+</div>
 </div>
 {{end}}
 {{define "scripts"}}<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZ8HNo3uR57W6cRFPdwBfhq-HhTiZhsFU&libraries=view" defer></script>{{end}}

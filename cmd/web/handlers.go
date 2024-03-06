@@ -50,77 +50,6 @@ func (app *application) showCarsByType(w http.ResponseWriter, r *http.Request, c
 	app.render(w, r, "cars.page.html", &templateData{CarsType: carsType, Cars: carsList})
 }
 
-func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
-	if err != nil || id < 1 {
-		app.notFound(w)
-		return
-	}
-
-	s, err := app.snippets.Get(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
-		} else {
-			app.serverError(w, err)
-		}
-		return
-	}
-
-	app.render(w, r, "show.page.html", &templateData{Snippet: s})
-}
-
-func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-
-	c, err := app.cars.GetCars(app.session.Get(r, "authenticatedUserID").(int))
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
-		} else {
-			app.serverError(w, err)
-		}
-		return
-	}
-
-	app.render(w, r, "create.page.html", &templateData{
-		Form: forms.NewSnippet(nil, c)})
-}
-
-func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-
-	err := r.ParseForm()
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	form := forms.NewSnippet(r.PostForm, nil)
-	form.Required("title", "image", "selectedCar", "content", "expires")
-	form.MaxLength("title", 100)
-	form.PermittedValues("expires", "365", "7", "1")
-
-	if !form.Valid() {
-		app.render(w, r, "create.page.html", &templateData{Form: form})
-		return
-	}
-
-	selectedCarID, err := strconv.Atoi(form.Get("selectedCar"))
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	id, err := app.snippets.Insert(selectedCarID, form.Get("title"), form.Get("image"), form.Get("content"), form.Get("expires"))
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	app.session.Put(r, "flash", "Snippet successfully created!")
-
-	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
-}
-
 func (app *application) showRent(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil || id < 1 {
@@ -138,6 +67,7 @@ func (app *application) showRent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	iframeSrc := app.generateRandomMap()
+	s.Location = iframeSrc
 
 	app.render(w, r, "rentShow.page.html", &templateData{Rent: s, IframeSrc: iframeSrc})
 }
@@ -158,6 +88,12 @@ func (app *application) createRentForm(w http.ResponseWriter, r *http.Request) {
 			app.serverError(w, err)
 		}
 		return
+	}
+
+	check, err := app.rents.GetRentByCarID(c.ID)
+	if !check {
+		errorMessage := "This vehicle is currently rented by someone else"
+		app.render(w, r, "error.page.html", &templateData{Error: errorMessage})
 	}
 
 	app.render(w, r, "rentCreate.page.html", &templateData{
@@ -231,6 +167,21 @@ func (app *application) showCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createCarForm(w http.ResponseWriter, r *http.Request) {
+	id := app.session.Get(r, "authenticatedUserID").(int)
+
+	role, err := app.users.RoleCheck(id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	// Allow access if the user is an admin or teacher
+	if role != "admin" {
+		errorMessage := "You are not authorized to access this page"
+		app.render(w, r, "error.page.html", &templateData{Error: errorMessage})
+		return
+	}
+
 	app.render(w, r, "carCreate.page.html", &templateData{
 		Form: forms.NewCar(nil)})
 }
@@ -334,26 +285,30 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, err := app.users.RoleCheck(id)
+	app.session.Put(r, "authenticatedUserID", id)
+	userID := app.session.Get(r, "authenticatedUserID").(int)
+
+	role, err := app.users.RoleCheck(userID)
 	if err != nil {
-		if errors.Is(err, models.ErrInvalidCredentials) {
-			form.Errors.Add("generic", "Email or Password is incorrect")
-			app.render(w, r, "login.page.html", &templateData{Form: form})
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
 		} else {
 			app.serverError(w, err)
 		}
 		return
 	}
 
-	app.session.Put(r, "authenticatedUserID", id)
 	if role == "admin" {
-		app.session.Put(r, "authenticatedAdminID", role)
-		http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+		app.session.Put(r, "isAdmin", true)
+	} else {
+		app.session.Put(r, "isAdmin", false)
 	}
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, "authenticatedUserID")
+	app.session.Remove(r, "isAdmin")
 	app.session.Put(r, "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -371,17 +326,7 @@ func (app *application) profileUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	carsList, err := app.cars.GetCars(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
-		} else {
-			app.serverError(w, err)
-		}
-		return
-	}
-
-	rentsList, err := app.rents.LatestRents(id)
+	rents, err := app.rents.LatestRents(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)
@@ -393,7 +338,6 @@ func (app *application) profileUser(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, "profile.page.html", &templateData{
 		User:  u,
-		Cars:  carsList,
-		Rents: rentsList,
+		Rents: rents,
 	})
 }

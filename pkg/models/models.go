@@ -11,21 +11,6 @@ var (
 	ErrDuplicateEmail     = errors.New("models: duplicate email")
 )
 
-type Snippet struct {
-	ID       int
-	Title    string
-	Image    string
-	Content  string
-	Created  time.Time
-	Expires  time.Time
-	CarsID   int
-	Model    string
-	CarType  string
-	Seats    string
-	Color    string
-	Location string
-}
-
 type User struct {
 	ID             int
 	Name           string
@@ -34,6 +19,9 @@ type User struct {
 	Created        time.Time
 	Active         bool
 	Avatar         string
+	Address        string
+	Socials        string
+	Phone          string
 	Role           string
 }
 

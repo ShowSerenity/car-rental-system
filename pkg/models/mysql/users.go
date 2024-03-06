@@ -60,29 +60,27 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 }
 
 func (m *UserModel) RoleCheck(id int) (string, error) {
-	var role string
 	stmt := "SELECT role FROM users WHERE id = ?"
 	row := m.DB.QueryRow(stmt, id)
-	err := row.Scan(&role)
+	s := &models.User{}
+
+	err := row.Scan(&s.Role)
+
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "user", models.ErrInvalidCredentials
-		} else {
-			return "user", err
-		}
+		return "", err
 	}
-	return role, nil
+	return s.Role, nil
 }
 
 func (m *UserModel) GetUser(id int) (*models.User, error) {
-	stmt := `SELECT id, name, email, hashed_password, created, avatar
+	stmt := `SELECT id, name, email, hashed_password, created, avatar, address, socials, phone
 	FROM users WHERE id = ?`
 
 	row := m.DB.QueryRow(stmt, id)
 
 	s := &models.User{}
 
-	err := row.Scan(&s.ID, &s.Name, &s.Email, &s.HashedPassword, &s.Created, &s.Avatar)
+	err := row.Scan(&s.ID, &s.Name, &s.Email, &s.HashedPassword, &s.Created, &s.Avatar, &s.Address, &s.Socials, &s.Phone)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord

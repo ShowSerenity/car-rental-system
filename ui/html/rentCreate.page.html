@@ -2,9 +2,11 @@
 
 {{define "title"}}Renting a car{{end}}
 
-{{define "css"}}<link rel='stylesheet' href='/static/css/main.css'>{{end}}
+{{define "css"}}{{end}}
 
 {{define "main"}}
+
+<div class="container-offers">
 <form action='/rent/create' method='POST' id='rentForm'>
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     {{with .Form}}
@@ -32,6 +34,7 @@
     </div>
     {{end}}
 </form>
+</div>
 {{end}}
 {{define "scripts"}}
 <script>
