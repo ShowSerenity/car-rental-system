@@ -1,0 +1,58 @@
+{{template "base" .}}
+
+{{define "title"}}Renting a car{{end}}
+
+{{define "css"}}{{end}}
+
+{{define "main"}}
+
+<div class="container-offers">
+<form action='/rent/create' method='POST' id='rentForm'>
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+    {{with .Form}}
+    <h2>Rent {{.Car.Model}}</h2>
+    <input type='hidden' name='carID' id='carIDInput' value='{{.Car.ID}}'>
+    <span style="display: none;" id="costPerMinute">{{.Car.Cost}}</span>
+
+    <div>
+        <label>Rent Duration:</label>
+        <input type='number' name='hours' id="hours" placeholder='Hours' value='{{.Get "hours"}}' required>
+        <input type='number' name='minutes' id="minutes" placeholder='Minutes' value='{{.Get "minutes"}}' required>
+    </div>
+
+    <div>
+        <label>Total Cost: ₸</label>
+        {{with .Errors.Get "totalCost"}}
+        <label class='error'>{{.}}</label>
+        {{end}}
+        <span id='totalCost'></span>
+        <input type='hidden' name='totalCost' id='totalCostInput'>
+    </div>
+
+    <div>
+        <input type='submit' value='Arrange Rent'>
+    </div>
+    {{end}}
+</form>
+</div>
+{{end}}
+{{define "scripts"}}
+<script>
+    document.getElementById('rentForm').addEventListener('input', function () {
+        calculateTotalCost();
+    });
+
+    function calculateTotalCost() {
+        var hours = document.getElementById('hours').value || 0;
+        var minutes = document.getElementById('minutes').value || 0;
+        var totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
+
+        // Assuming you have a cost per minute, modify this calculation as needed
+        var costPerMinute = parseFloat(document.getElementById('costPerMinute').textContent); // Replace with your actual cost per minute
+        var totalCost = totalMinutes * costPerMinute;
+
+        document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+        document.getElementById('totalCostInput').value = totalCost.toFixed(2);
+    }
+</script>
+{{end}}

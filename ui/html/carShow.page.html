@@ -1,0 +1,57 @@
+{{template "base" .}}
+
+{{define "title"}}Car #{{.Car.ID}}{{end}}
+
+{{define "css"}}<style>
+    /* Add this to your CSS or in the <style> section of your HTML */
+    button {
+        background-color: #4CAF50; /* Green background color */
+        color: white; /* White text color */
+        padding: 10px 20px; /* Padding around the text */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Add a slight border-radius */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button a {
+        color: white; /* Set the text color for the link inside the button */
+        text-decoration: none; /* Remove underline */
+    }
+    </style>
+{{end}}
+
+{{define "main"}}
+<div class="container-offers">
+{{with .Car}}
+<div class="snippet">
+    <div class="metadata">
+        <strong>{{.Seats}} seated {{.Color}} {{.Model}}</strong>
+        <span>#{{.CarType}}</span>
+    </div>
+    <pre><code><img style="width: 100%; height: 100%;"src="{{.Image}}" alt="car image">
+        <br>{{.Description}}
+        <br>Age requirement: {{.AgeRequirement}}
+        <br>Cost: {{.Cost}} tg/min
+        <br>Currently at:
+        <br>
+        <iframe id="locationIframe" width="600"
+                    height="450"
+                    style="border:0;"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="{{.Location}}">
+        </iframe>
+        <br><button><a href="/rent/create/{{.ID}}">Rent</a></button>
+    </code></pre>
+    <div class="metadata">
+
+    </div>
+</div>
+</div>
+{{end}}
+{{end}}
+{{define "scripts"}}{{end}}
