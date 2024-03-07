@@ -6,3 +6,7 @@ for (var i = 0; i < navLinks.length; i++) {
 		break;
 	}
 }
+
+setTimeout(function () {
+    $('.loader_bg').fadeToggle();
+}, 1500);
